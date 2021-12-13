@@ -36,7 +36,7 @@ return [
     ],
 
     'nav-trees' => [
-        'model' =>  \Statamic\Eloquent\Structures\NavTreeModel::class,
+        'model' =>  \Statamic\Eloquent\Structures\NavTree::class,
     ],
 
 ];
