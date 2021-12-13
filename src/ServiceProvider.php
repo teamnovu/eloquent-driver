@@ -42,10 +42,6 @@ class ServiceProvider extends AddonServiceProvider
             return;
         }
 
-        if (! $this->app->runningInConsole()) {
-            return;
-        }
-
         $this->publishes([
             $config => config_path('statamic/eloquent-driver.php'),
         ], 'statamic-eloquent-config');
