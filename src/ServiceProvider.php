@@ -28,11 +28,19 @@ class ServiceProvider extends AddonServiceProvider
 {
     protected $config = false;
 
+    protected $updateScripts = [
+        \Statamic\Eloquent\Updates\MoveConfig::class,
+    ];
+
     public function boot()
     {
         parent::boot();
 
-        $this->mergeConfigFrom($config = __DIR__.'/../config/eloquent-driver.php', 'statamic-eloquent-driver');
+        $this->mergeConfigFrom($config = __DIR__.'/../config/eloquent-driver.php', 'statamic.eloquent-driver');
+
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
 
         if (! $this->app->runningInConsole()) {
             return;
@@ -74,14 +82,15 @@ class ServiceProvider extends AddonServiceProvider
     protected function registerEntries()
     {
         $this->app->bind('statamic.eloquent.entries.entry', function () {
-            return config('statamic-eloquent-driver.entries.entry');
+            return config('statamic.eloquent-driver.entries.entry');
         });
 
         $this->app->bind('statamic.eloquent.entries.model', function () {
-            return config('statamic-eloquent-driver.entries.model');
+            return config('statamic.eloquent-driver.entries.model');
         });
 
         Statamic::repository(EntryRepositoryContract::class, EntryRepository::class);
+        Statamic::repository(CollectionRepositoryContract::class, CollectionRepository::class);
 
         $this->app->bind(EntryQueryBuilder::class, function ($app) {
             return new EntryQueryBuilder(
@@ -96,11 +105,11 @@ class ServiceProvider extends AddonServiceProvider
         Statamic::repository(CollectionTreeRepositoryContract::class, CollectionTreeRepository::class);
 
         $this->app->bind('statamic.eloquent.collections.model', function () {
-            return config('statamic-eloquent-driver.collections.model');
+            return config('statamic.eloquent-driver.collections.model');
         });
 
         $this->app->bind('statamic.eloquent.trees.model', function () {
-            return config('statamic-eloquent-driver.trees.model');
+            return config('statamic.eloquent-driver.trees.model');
         });
     }
 
@@ -116,11 +125,11 @@ class ServiceProvider extends AddonServiceProvider
         });
 
         $this->app->bind('statamic.eloquent.terms.model', function () {
-            return config('statamic-eloquent-driver.terms.model');
+            return config('statamic.eloquent-driver.terms.model');
         });
 
         $this->app->bind('statamic.eloquent.taxonomies.model', function () {
-            return config('statamic-eloquent-driver.taxonomies.model');
+            return config('statamic.eloquent-driver.taxonomies.model');
         });
     }
 
@@ -129,11 +138,11 @@ class ServiceProvider extends AddonServiceProvider
         Statamic::repository(GlobalRepositoryContract::class, GlobalRepository::class);
 
         $this->app->bind('statamic.eloquent.global-sets.model', function () {
-            return config('statamic-eloquent-driver.global-sets.model');
+            return config('statamic.eloquent-driver.global-sets.model');
         });
 
-        $this->app->bind('statamic.eloquent.variables.model', function () {
-            return config('statamic-eloquent-driver.variables.model');
+        $this->app->bind('statamic.eloquent.entries.model', function () {
+            return config('statamic.eloquent-driver.entries.model');
         });
     }
 
@@ -143,11 +152,11 @@ class ServiceProvider extends AddonServiceProvider
         Statamic::repository(NavTreeRepositoryContract::class, NavTreeRepository::class);
 
         $this->app->bind('statamic.eloquent.navigations.model', function () {
-            return config('statamic-eloquent-driver.navigations.model');
+            return config('statamic.eloquent-driver.navigations.model');
         });
 
         $this->app->bind('statamic.eloquent.trees.model', function () {
-            return config('statamic-eloquent-driver.trees.model');
+            return config('statamic.eloquent-driver.trees.model');
         });
     }
 
