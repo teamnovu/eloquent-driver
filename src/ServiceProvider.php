@@ -28,11 +28,19 @@ class ServiceProvider extends AddonServiceProvider
 {
     protected $config = false;
 
+    protected $updateScripts = [
+        \Statamic\Eloquent\Updates\MoveConfig::class,
+    ];
+
     public function boot()
     {
         parent::boot();
 
-        $this->mergeConfigFrom($config = __DIR__.'/../config/eloquent-driver.php', 'statamic-eloquent-driver');
+        $this->mergeConfigFrom($config = __DIR__.'/../config/eloquent-driver.php', 'statamic.eloquent-driver');
+
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
 
         if (! $this->app->runningInConsole()) {
             return;
@@ -82,6 +90,7 @@ class ServiceProvider extends AddonServiceProvider
         });
 
         Statamic::repository(EntryRepositoryContract::class, EntryRepository::class);
+        Statamic::repository(CollectionRepositoryContract::class, CollectionRepository::class);
 
         $this->app->bind(EntryQueryBuilder::class, function ($app) {
             return new EntryQueryBuilder(
@@ -132,8 +141,8 @@ class ServiceProvider extends AddonServiceProvider
             return config('statamic-eloquent-driver.global-sets.model');
         });
 
-        $this->app->bind('statamic.eloquent.variables.model', function () {
-            return config('statamic-eloquent-driver.variables.model');
+        $this->app->bind('statamic.eloquent.entries.model', function () {
+            return config('statamic.eloquent-driver.entries.model');
         });
     }
 

@@ -2,6 +2,8 @@
 
 This package provides support for storing your Statamic data in a database rather than the filesystem.
 
+This driver currently supports collections, entries, taxonomies, terms, navigations, and globals but not yet form submissions, blueprints, or fieldsets. We'll be working on those in the future.
+
 ## Installation
 
 Install using Composer:
