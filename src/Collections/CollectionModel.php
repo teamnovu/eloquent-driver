@@ -2,23 +2,24 @@
 
 namespace Statamic\Eloquent\Collections;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Statamic\Eloquent\Database\BaseModel;
 
-class CollectionModel extends Eloquent
+class CollectionModel extends BaseModel
 {
     protected $guarded = [];
 
     protected $table = 'collections';
 
     protected $casts = [
-        'routes' => 'json',
-        'inject' => 'json',
-        'taxonomies' => 'json',
-        'structure' => 'json',
-        'sites' => 'json',
-        'revisions' => 'bool',
-        'dated' => 'bool',
-        'default_publish_state' => 'bool',
-        'ampable' => 'bool',
+        'settings' => 'json',
+        'settings.routes' => 'array',
+        'settings.inject' => 'array',
+        'settings.taxonomies' => 'array',
+        'settings.structure' => 'array',
+        'settings.sites' => 'array',
+        'settings.revisions' => 'boolean',
+        'settings.dated' => 'boolean',
+        'settings.default_publish_state' => 'boolean',
+        'settings.ampable' => 'boolean',
     ];
 }

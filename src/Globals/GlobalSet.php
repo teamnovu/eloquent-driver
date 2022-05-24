@@ -2,6 +2,7 @@
 
 namespace Statamic\Eloquent\Globals;
 
+use Statamic\Contracts\Globals\Variables as VariablesContract;
 use Statamic\Eloquent\Globals\GlobalSetModel as Model;
 use Statamic\Globals\GlobalSet as FileEntry;
 
@@ -16,8 +17,10 @@ class GlobalSet extends FileEntry
             ->title($model->title)
             ->model($model);
 
+        $variablesModel = app('statamic.eloquent.global_sets.variables_model');
+
         foreach ($model->localizations as $localization) {
-            $global->addLocalization(Variables::fromModel(VariablesModel::make($localization)));
+            $global->addLocalization(app(VariablesContract::class)::fromModel($variablesModel::make($localization)));
         }
 
         return $global;
@@ -25,7 +28,7 @@ class GlobalSet extends FileEntry
 
     public function toModel()
     {
-        $class = app('statamic.eloquent.global-sets.model');
+        $class = app('statamic.eloquent.global_sets.model');
 
         $localizations = $this->localizations()->map(function ($value, $key) {
             return $value->toModel()->toArray();
@@ -40,7 +43,7 @@ class GlobalSet extends FileEntry
 
     public function makeLocalization($site)
     {
-        return (new Variables)
+        return app(VariablesContract::class)
             ->globalSet($this)
             ->locale($site);
     }
@@ -56,5 +59,10 @@ class GlobalSet extends FileEntry
         $this->id($model->id);
 
         return $this;
+    }
+
+    public function path()
+    {
+        return $this->handle();
     }
 }

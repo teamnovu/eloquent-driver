@@ -2,9 +2,9 @@
 
 namespace Statamic\Eloquent\Structures;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Statamic\Eloquent\Database\BaseModel;
 
-class NavModel extends Eloquent
+class NavModel extends BaseModel
 {
     protected $guarded = [];
 

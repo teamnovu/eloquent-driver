@@ -2,10 +2,10 @@
 
 namespace Statamic\Eloquent\Taxonomies;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Arr;
+use Statamic\Eloquent\Database\BaseModel;
 
-class TermModel extends Eloquent
+class TermModel extends BaseModel
 {
     protected $guarded = [];
 

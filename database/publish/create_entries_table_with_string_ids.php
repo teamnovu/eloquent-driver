@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Statamic\Eloquent\Database\BaseMigration as Migration;
 
-class CreateEntriesTable extends Migration
+class CreateEntriesTableWithStringIds extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateEntriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('entries', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create(config('statamic.eloquent-driver.table_prefix', '').'entries', function (Blueprint $table) {
+            $table->string('id');
             $table->string('site');
-            $table->unsignedInteger('origin_id')->nullable();
+            $table->string('origin_id')->nullable();
             $table->boolean('published')->default(true);
             $table->string('status');
-            $table->string('slug');
+            $table->string('slug')->nullable();
             $table->string('uri')->nullable();
             $table->string('date')->nullable();
             $table->string('collection');
@@ -35,6 +35,6 @@ class CreateEntriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('entries');
+        Schema::dropIfExists(config('statamic.eloquent-driver.table_prefix', '').'entries');
     }
 }

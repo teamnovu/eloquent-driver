@@ -3,7 +3,7 @@
 namespace Statamic\Eloquent\Taxonomies;
 
 use Statamic\Eloquent\Taxonomies\TaxonomyModel as Model;
-use Statamic\Taxonomies\Taxonomy  as FileEntry;
+use Statamic\Taxonomies\Taxonomy as FileEntry;
 
 class Taxonomy extends FileEntry
 {
@@ -15,6 +15,7 @@ class Taxonomy extends FileEntry
             ->handle($model->handle)
             ->title($model->title)
             ->sites($model->sites)
+            ->revisionsEnabled($model->settings['revisions'] ?? false)
             ->model($model);
     }
 
@@ -26,6 +27,9 @@ class Taxonomy extends FileEntry
             'handle' => $this->handle(),
             'title' => $this->title(),
             'sites' => $this->sites(),
+            'settings' => [
+                'revisions' => $this->revisionsEnabled(),
+            ],
         ]);
     }
 

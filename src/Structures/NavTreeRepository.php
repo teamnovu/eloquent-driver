@@ -3,20 +3,25 @@
 namespace Statamic\Eloquent\Structures;
 
 use Statamic\Contracts\Structures\Tree as TreeContract;
+use Statamic\Facades\Blink;
 use Statamic\Stache\Repositories\NavTreeRepository as StacheRepository;
 
 class NavTreeRepository extends StacheRepository
 {
     public function find(string $handle, string $site): ?TreeContract
     {
-        $model = TreeModel::whereHandle($handle)
-            ->whereType('navigation')
-            ->where('locale', $site)
-            ->first();
+        return Blink::once("eloquent-nav-tree-{$handle}-{$site}", function() use ($handle, $site) {
 
-        return $model
-            ? app(TreeContract::class)->fromModel($model)
-            : null;
+            $model = app('statamic.eloquent.navigations.tree_model')::whereHandle($handle)
+                ->whereType('navigation')
+                ->where('locale', $site)
+                ->first();
+
+            return $model
+                ? app(app('statamic.eloquent.navigations.tree'))->fromModel($model)
+                : null;
+
+        });
     }
 
     public function save($entry)
@@ -25,18 +30,13 @@ class NavTreeRepository extends StacheRepository
 
         $model->save();
 
+        Blink::forget("eloquent-nav-tree-{$model->handle}-{$model->locale}");
+
         $entry->model($model->fresh());
     }
 
     public function delete($entry)
     {
         $entry->model()->delete();
-    }
-
-    public static function bindings()
-    {
-        return [
-            TreeContract::class => NavTree::class,
-        ];
     }
 }

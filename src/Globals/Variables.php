@@ -11,18 +11,25 @@ class Variables extends FileEntry
     {
         return (new static)
             ->locale($model->locale)
-            ->data($model->data);
+            ->data($model->data)
+            ->origin($model->origin ?? null);
     }
 
     public function toModel()
     {
-        $class = app('statamic.eloquent.variables.model');
+        $class = app('statamic.eloquent.global_sets.variables_model');
 
         $data = $this->data();
 
         return $class::make([
             'locale' => $this->locale,
             'data' => $data,
+            'origin' => $this->origin ?? null,
         ]);
+    }
+
+    protected function getOriginByString($origin)
+    {
+        return $this->globalSet()->in($origin);
     }
 }

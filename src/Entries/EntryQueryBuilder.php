@@ -25,6 +25,10 @@ class EntryQueryBuilder extends EloquentQueryBuilder implements QueryBuilder
 
     protected function column($column)
     {
+        if (! is_string($column)) {
+            return $column;
+        }
+
         if ($column == 'origin') {
             $column = 'origin_id';
         }
@@ -43,7 +47,7 @@ class EntryQueryBuilder extends EloquentQueryBuilder implements QueryBuilder
         return parent::get($columns);
     }
 
-    public function paginate($perPage = null, $columns = ['*'])
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
         $this->addTaxonomyWheres();
 

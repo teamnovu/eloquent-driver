@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Statamic\Eloquent\Database\BaseMigration as Migration;
 
 class CreateTermsTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateTermsTable extends Migration
      */
     public function up()
     {
-        Schema::create('taxonomy_terms', function (Blueprint $table) {
+        Schema::create(config('statamic.eloquent-driver.table_prefix', '').'taxonomy_terms', function (Blueprint $table) {
             $table->id();
             $table->string('site');
             $table->string('slug');
@@ -31,6 +31,6 @@ class CreateTermsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('taxonomy_terms');
+        Schema::dropIfExists(config('statamic.eloquent-driver.table_prefix', '').'taxonomy_terms');
     }
 }

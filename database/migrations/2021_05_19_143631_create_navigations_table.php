@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Statamic\Eloquent\Database\BaseMigration as Migration;
 
 class CreateNavigationsTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateNavigationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('navigations', function (Blueprint $table) {
+        Schema::create(config('statamic.eloquent-driver.table_prefix', '').'navigations', function (Blueprint $table) {
             $table->id();
             $table->string('handle');
             $table->string('title');
@@ -32,6 +32,6 @@ class CreateNavigationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('navigations');
+        Schema::dropIfExists(config('statamic.eloquent-driver.table_prefix', '').'navigations');
     }
 }
