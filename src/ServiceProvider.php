@@ -68,11 +68,11 @@ class ServiceProvider extends AddonServiceProvider
         ], 'migrations');
 
         $this->publishes([
-            __DIR__.'/../database/publish/create_entries_table.php.stub' => $this->migrationsPath('create_entries_table'),
+            __DIR__.'/../database/migrations/create_entries_table.php.stub' => $this->migrationsPath('create_entries_table'),
         ], 'statamic-eloquent-entries-table');
 
         $this->publishes([
-            __DIR__.'/../database/publish/create_entries_table_with_string_ids.php.stub' => $this->migrationsPath('create_entries_table_with_string_ids'),
+            __DIR__.'/../database/migrations/create_entries_table_with_string_ids.php.stub' => $this->migrationsPath('create_entries_table_with_string_ids'),
         ], 'statamic-eloquent-entries-table-with-string-ids');
 
         $this->commands([
