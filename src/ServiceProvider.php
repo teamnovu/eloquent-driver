@@ -35,6 +35,8 @@ class ServiceProvider extends AddonServiceProvider
 {
     protected $config = false;
 
+    protected $migrationCount = 0;
+
     public function boot()
     {
         parent::boot();
@@ -292,6 +294,6 @@ class ServiceProvider extends AddonServiceProvider
 
     protected function migrationsPath($filename)
     {
-        return database_path('migrations/'.date('Y_m_d_His', time())."_{$filename}.php");
+        return database_path('migrations/'.date('Y_m_d_His', time() + (++$this->migrationCount + 60))."_{$filename}.php");
     }
 }
