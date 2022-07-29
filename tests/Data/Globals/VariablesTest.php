@@ -20,7 +20,7 @@ class VariablesTest extends TestCase
     /** @test */
     public function it_gets_file_contents_for_saving()
     {
-        $entry = (new Variables)->data([
+        $entry = (new Variables())->data([
             'array' => ['first one', 'second one'],
             'string' => 'The string',
             'null' => null, // this...
@@ -187,7 +187,7 @@ EOT;
     /** @test */
     public function it_sets_data_values_using_magic_properties()
     {
-        $variables = new Variables;
+        $variables = new Variables();
         $this->assertNull($variables->get('foo'));
 
         $variables->foo = 'bar';
@@ -199,8 +199,7 @@ EOT;
     /** @test */
     public function it_gets_evaluated_augmented_value_using_magic_property()
     {
-        (new class extends Fieldtype
-        {
+        (new class () extends Fieldtype {
             protected static $handle = 'test';
 
             public function augment($value)
@@ -231,8 +230,7 @@ EOT;
         $builder->shouldReceive('get')->times(2)->andReturn('query builder results');
         app()->instance('mocked-builder', $builder);
 
-        (new class extends Fieldtype
-        {
+        (new class () extends Fieldtype {
             protected static $handle = 'test';
 
             public function augment($value)
@@ -273,8 +271,7 @@ EOT;
     /** @test */
     public function it_converts_to_an_array()
     {
-        $fieldtype = new class extends Fieldtype
-        {
+        $fieldtype = new class () extends Fieldtype {
             protected static $handle = 'test';
 
             public function augment($value)
@@ -319,8 +316,7 @@ EOT;
     /** @test */
     public function only_requested_relationship_fields_are_included_in_to_array()
     {
-        $regularFieldtype = new class extends Fieldtype
-        {
+        $regularFieldtype = new class () extends Fieldtype {
             protected static $handle = 'regular';
 
             public function augment($value)
@@ -330,8 +326,7 @@ EOT;
         };
         $regularFieldtype::register();
 
-        $relationshipFieldtype = new class extends Fieldtype
-        {
+        $relationshipFieldtype = new class () extends Fieldtype {
             protected static $handle = 'relationship';
 
             protected $relationship = true;

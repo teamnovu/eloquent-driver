@@ -33,7 +33,7 @@ class AssetContainer extends FileEntry
 
     public static function fromModel(Model $model)
     {
-        return (new static)->fillFromModel($model);
+        return (new static())->fillFromModel($model);
     }
 
     public function fillFromModel(Model $model)

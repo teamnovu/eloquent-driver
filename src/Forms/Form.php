@@ -13,7 +13,7 @@ class Form extends FileEntry
 
     public static function fromModel(Model $model)
     {
-        return (new static)
+        return (new static())
             ->title($model->title)
             ->handle($model->handle)
             ->store($model->settings['store'] ?? null)

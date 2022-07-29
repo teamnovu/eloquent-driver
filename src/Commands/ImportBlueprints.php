@@ -72,7 +72,7 @@ class ImportBlueprints extends Command
 
             $contents = YAML::file($path)->parse();
 
-            $blueprint = (new Blueprint)
+            $blueprint = (new Blueprint())
                 ->setHidden(Arr::pull($contents, 'hide'))
                 ->setOrder(Arr::pull($contents, 'order'))
                 ->setInitialPath($path)
@@ -110,7 +110,7 @@ class ImportBlueprints extends Command
             $handle = str_before($basename, '.yaml');
             $handle = str_replace('/', '.', $handle);
 
-            $fieldset = (new Fieldset)
+            $fieldset = (new Fieldset())
                 ->setHandle($handle)
                 ->setContents(YAML::file($file)->parse());
 

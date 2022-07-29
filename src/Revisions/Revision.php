@@ -30,7 +30,7 @@ class Revision extends FileEntry
 
     public static function fromModel(Model $model)
     {
-        return (new static)
+        return (new static())
             ->key($model->key)
             ->action($model->action ?? false)
             ->id($model->created_at->timestamp)
@@ -58,7 +58,7 @@ class Revision extends FileEntry
 
     public function fromRevisionOrWorkingCopy($item)
     {
-        return (new static)
+        return (new static())
             ->key($item->key())
             ->action($item instanceof WorkingCopy ? 'working' : 'revision')
             ->date($item->date())
