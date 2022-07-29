@@ -40,9 +40,13 @@ class Term extends FileEntry
 
     public function toModel()
     {
-        $class = app('statamic.eloquent.taxonomies.term_model');
+        $class = app('statamic.eloquent.terms.model');
 
         $data = $this->data();
+
+        if (! isset($data['template'])) {
+            unset($data['template']);
+        }
 
         if ($this->blueprint && $this->taxonomy()->termBlueprints()->count() > 1) {
             $data['blueprint'] = $this->blueprint;
