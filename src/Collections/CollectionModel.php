@@ -19,7 +19,7 @@ class CollectionModel extends BaseModel
         'settings.sites' => 'array',
         'settings.revisions' => 'boolean',
         'settings.dated' => 'boolean',
-        'settings.default_publish_state' => 'boolean',
+        'settings.default_status' => 'boolean',
         'settings.ampable' => 'boolean',
     ];
 }
