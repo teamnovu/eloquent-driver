@@ -18,7 +18,7 @@ class GlobalSetTest extends TestCase
             ],
         ]);
 
-        $set = (new GlobalSet)->title('The title');
+        $set = (new GlobalSet())->title('The title');
 
         $variables = $set->makeLocalization('en')->data([
             'array' => ['first one', 'second one'],
@@ -51,7 +51,7 @@ EOT;
             ],
         ]);
 
-        $set = (new GlobalSet)->title('The title');
+        $set = (new GlobalSet())->title('The title');
 
         // We set the data but it's basically irrelevant since it won't get saved to this file.
         $set->in('en', function ($loc) {

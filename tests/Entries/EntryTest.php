@@ -22,7 +22,7 @@ class EntryTest extends TestCase
             ],
         ]);
 
-        $entry = (new Entry)->fromModel($model);
+        $entry = (new Entry())->fromModel($model);
 
         $this->assertEquals('the-slug', $entry->slug());
         $this->assertEquals('bar', $entry->data()->get('foo'));
@@ -50,7 +50,7 @@ class EntryTest extends TestCase
             'en' => '/blog/{slug}',
         ])->save();
 
-        $entry = (new Entry)->fromModel($model)->collection($collection);
+        $entry = (new Entry())->fromModel($model)->collection($collection);
 
         $this->assertEquals($model->toArray(), $entry->toModel()->toArray());
     }

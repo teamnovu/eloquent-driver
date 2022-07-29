@@ -12,7 +12,7 @@ class Entry extends FileEntry
 
     public static function fromModel(Model $model)
     {
-        return (new static)
+        return (new static())
             ->origin($model->origin_id)
             ->locale($model->site)
             ->slug($model->slug)
