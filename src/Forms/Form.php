@@ -5,6 +5,9 @@ namespace Statamic\Eloquent\Forms;
 use Statamic\Eloquent\Forms\FormModel as Model;
 use Statamic\Events\FormDeleted;
 use Statamic\Events\FormSaved;
+use Statamic\Facades\File;
+use Statamic\Facades\Folder;
+use Statamic\Facades\YAML;
 use Statamic\Forms\Form as FileEntry;
 
 class Form extends FileEntry
@@ -77,6 +80,17 @@ class Form extends FileEntry
                 ->date($model->created_at);
 
             return $submission;
+        });
+    }
+
+    public function fileSubmissions()
+    {
+        $path = config('statamic.forms.submissions').'/'.$this->handle();
+
+        return collect(Folder::getFilesByType($path, 'yaml'))->map(function ($file) {
+            return $this->makeSubmission()
+                ->id(pathinfo($file)['filename'])
+                ->data(YAML::parse(File::get($file)));
         });
     }
 
