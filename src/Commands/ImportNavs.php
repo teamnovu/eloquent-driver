@@ -65,7 +65,7 @@ class ImportNavs extends Command
         $navs->each(function ($nav) use ($bar) {
             $model = tap(EloquentNav::makeModelFromContract($nav))->save();
 
-            $nav->trees()->each(function($tree) {
+            $nav->trees()->each(function ($tree) {
                 EloquentNavTree::makeModelFromContract($tree)->save();
             });
 
