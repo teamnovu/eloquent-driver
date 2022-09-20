@@ -11,11 +11,12 @@ class NavTree extends FileEntry
 
     public static function fromModel(Model $model)
     {
-        return (new static)
+        return (new static())
             ->tree($model->tree)
             ->handle($model->handle)
             ->locale($model->locale)
             ->initialPath($model->settings['initial_path'] ?? null)
+            ->syncOriginal()
             ->model($model);
     }
 
@@ -32,10 +33,10 @@ class NavTree extends FileEntry
 
         return $class::firstOrNew([
             'handle' => $source->handle(),
-            'type' => 'navigation',
+            'type'   => 'navigation',
             'locale' => $source->locale(),
         ])->fill([
-            'tree' => ($isFileEntry || $source->model) ? $source->tree() : [],
+            'tree'     => ($isFileEntry || $source->model) ? $source->tree() : [],
             'settings' => [
                 'initial_path' => $source->initialPath(),
             ],

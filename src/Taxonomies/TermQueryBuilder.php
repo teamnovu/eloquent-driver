@@ -5,7 +5,10 @@ namespace Statamic\Eloquent\Taxonomies;
 use Illuminate\Support\Str;
 use Statamic\Contracts\Taxonomies\Term as TermContract;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
+use Statamic\Facades\Taxonomy;
+use Statamic\Facades\Term;
 use Statamic\Query\EloquentQueryBuilder;
 use Statamic\Taxonomies\TermCollection;
 
@@ -40,7 +43,9 @@ class TermQueryBuilder extends EloquentQueryBuilder
         }
 
         if (! in_array($column, $this->columns)) {
-            $column = 'data->'.$column;
+            if (! Str::startsWith($column, 'data->')) {
+                $column = 'data->'.$column;
+            }
         }
 
         return $column;
@@ -89,13 +94,15 @@ class TermQueryBuilder extends EloquentQueryBuilder
         if (in_array($column, ['id', 'slug'])) {
             $column = 'slug';
 
-            $taxonomy = Str::before($value.'', '::');
+            if (str_contains($value, '::')) {
+                $taxonomy = Str::before($value.'', '::');
 
-            if ($taxonomy) {
-                $this->taxonomies[] = $taxonomy;
+                if ($taxonomy) {
+                    $this->taxonomies[] = $taxonomy;
+                }
+
+                $value = Str::after($value, '::');
             }
-
-            $value = Str::after($value, '::');
         }
 
         parent::where($column, $operator, $value, $boolean);
@@ -139,27 +146,25 @@ class TermQueryBuilder extends EloquentQueryBuilder
         return $this;
     }
 
+    public function find($id, $columns = ['*'])
+    {
+        $model = parent::find($id, $columns);
+
+        if ($model) {
+            $site = $this->site;
+            if (! $site) {
+                $site = Site::default()->handle();
+            }
+
+            return app(TermContract::class)::fromModel($model)
+                ->in($site)
+                ->selectedQueryColumns($columns);
+        }
+    }
+
     public function get($columns = ['*'])
     {
-        if (! empty($this->collections)) {
-            $collectionTaxonomies = collect($this->collections)
-                ->map(function ($handle) {
-                    return Collection::findByHandle($handle)?->taxonomies() ?? [];
-                })
-                ->flatten()
-                ->filter()
-                ->unique();
-
-            $this->taxonomies = array_merge($this->taxonomies, $collectionTaxonomies->all());
-        }
-
-        $queryTaxonomies = collect($this->taxonomies)
-            ->filter()
-            ->unique();
-
-        if ($queryTaxonomies->count() > 0) {
-            $this->builder->whereIn('taxonomy', $queryTaxonomies->all());
-        }
+        $this->applyCollectionAndTaxonomyWheres();
 
         $items = parent::get($columns);
 
@@ -170,6 +175,8 @@ class TermQueryBuilder extends EloquentQueryBuilder
             $items->each->collection(Collection::findByHandle($this->collections[0]));
         }
 
+        $items = Term::applySubstitutions($items);
+
         return $items->map(function ($term) {
             if ($this->site) {
                 return $term->in($this->site);
@@ -177,5 +184,79 @@ class TermQueryBuilder extends EloquentQueryBuilder
 
             return $term->inDefaultLocale();
         });
+    }
+
+    public function count()
+    {
+        $this->applyCollectionAndTaxonomyWheres();
+
+        return parent::count();
+    }
+
+    public function paginate($perPage = null, $columns = [], $pageName = 'page', $page = null)
+    {
+        $this->applyCollectionAndTaxonomyWheres();
+
+        return parent::paginate($perPage = null, $columns = [], $pageName = 'page', $page = null);
+    }
+
+    private function applyCollectionAndTaxonomyWheres()
+    {
+        if (! empty($this->collections)) {
+            $this->builder->where(function ($query) {
+                $taxonomies = empty($this->taxonomies)
+                    ? Taxonomy::handles()->all()
+                    : $this->taxonomies;
+
+                // get entries in each collection that have a value for the taxonomies we are querying
+                // or the ones associated with the collection
+                // what we ultimately want is a subquery for terms in the form:
+                // where('taxonomy', $taxonomy)->whereIn('slug', $slugArray)
+                Entry::whereInCollection($this->collections)
+                    ->flatMap(function ($entry) use ($taxonomies) {
+                        $slugs = [];
+                        foreach ($entry->collection()->taxonomies()->map->handle() as $taxonomy) {
+                            if (in_array($taxonomy, $taxonomies)) {
+                                foreach ($entry->get($taxonomy, []) as $term) {
+                                    $slugs[] = $taxonomy.'::'.$term;
+                                }
+                            }
+                        }
+
+                        return $slugs;
+                    })
+                    ->unique()
+                    ->map(function ($term) {
+                        return [
+                            'taxonomy' => Str::before($term, '::'),
+                            'term'     => Str::after($term, '::'),
+                        ];
+                    })
+                    ->mapToGroups(function ($item) {
+                        return [$item['taxonomy'] => $item['term']];
+                    })
+                    ->each(function ($terms, $taxonomy) use ($query) {
+                        $query->orWhere(function ($query) use ($terms, $taxonomy) {
+                            $query->where('taxonomy', $taxonomy)
+                                ->whereIn('slug', $terms);
+                        });
+                    });
+            });
+        }
+
+        if (! empty($this->taxonomies)) {
+            $queryTaxonomies = collect($this->taxonomies)
+                ->filter()
+                ->unique();
+
+            if ($queryTaxonomies->count() > 0) {
+                $this->builder->whereIn('taxonomy', $queryTaxonomies->all());
+            }
+        }
+    }
+
+    public function with($relations, $callback = null)
+    {
+        return $this;
     }
 }

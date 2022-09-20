@@ -19,15 +19,15 @@ class GlobalRepositoryTest extends TestCase
     {
         parent::setUp();
 
-        $stache = (new Stache)->sites(['en', 'fr']);
+        $stache = (new Stache())->sites(['en', 'fr']);
         $this->app->instance(Stache::class, $stache);
         $this->repo = new GlobalRepository($stache);
 
         $globalOne = $this->repo->make('contact')->title('Contact Details')->save();
-        (new Variables)->globalSet($globalOne)->data(['phone' => '555-1234'])->save();
+        (new Variables())->globalSet($globalOne)->data(['phone' => '555-1234'])->save();
 
         $globalTwo = $this->repo->make('global')->title('General')->save();
-        (new Variables)->globalSet($globalTwo)->data(['foo' => 'Bar'])->save();
+        (new Variables())->globalSet($globalTwo)->data(['foo' => 'Bar'])->save();
     }
 
     /** @test */
@@ -39,7 +39,7 @@ class GlobalRepositoryTest extends TestCase
         $this->assertCount(2, $sets);
         $this->assertEveryItemIsInstanceOf(GlobalSet::class, $sets);
 
-        $ordered = $sets->sortBy->path()->values();
+        $ordered = $sets->sortBy->handle()->values();
         $this->assertEquals(['contact', 'global'], $ordered->map->id()->all());
         $this->assertEquals(['contact', 'global'], $ordered->map->handle()->all());
         $this->assertEquals(['Contact Details', 'General'], $ordered->map->title()->all());

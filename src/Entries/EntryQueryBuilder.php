@@ -2,8 +2,10 @@
 
 namespace Statamic\Eloquent\Entries;
 
+use Illuminate\Support\Str;
 use Statamic\Contracts\Entries\QueryBuilder;
 use Statamic\Entries\EntryCollection;
+use Statamic\Facades\Entry;
 use Statamic\Query\EloquentQueryBuilder;
 use Statamic\Stache\Query\QueriesTaxonomizedEntries;
 
@@ -18,9 +20,11 @@ class EntryQueryBuilder extends EloquentQueryBuilder implements QueryBuilder
 
     protected function transform($items, $columns = [])
     {
-        return EntryCollection::make($items)->map(function ($model) {
+        $items = EntryCollection::make($items)->map(function ($model) {
             return app('statamic.eloquent.entries.entry')::fromModel($model);
         });
+
+        return Entry::applySubstitutions($items);
     }
 
     protected function column($column)
@@ -34,10 +38,22 @@ class EntryQueryBuilder extends EloquentQueryBuilder implements QueryBuilder
         }
 
         if (! in_array($column, self::COLUMNS)) {
-            $column = 'data->'.$column;
+            if (! Str::startsWith($column, 'data->')) {
+                $column = 'data->'.$column;
+            }
         }
 
         return $column;
+    }
+
+    public function find($id, $columns = ['*'])
+    {
+        $model = parent::find($id, $columns);
+
+        if ($model) {
+            return app('statamic.eloquent.entries.entry')::fromModel($model)
+                ->selectedQueryColumns($columns);
+        }
     }
 
     public function get($columns = ['*'])
@@ -51,7 +67,7 @@ class EntryQueryBuilder extends EloquentQueryBuilder implements QueryBuilder
     {
         $this->addTaxonomyWheres();
 
-        return parent::paginate($perPage, $columns);
+        return parent::paginate($perPage, $columns, $pageName = 'page', $page = null);
     }
 
     public function count()
@@ -59,5 +75,10 @@ class EntryQueryBuilder extends EloquentQueryBuilder implements QueryBuilder
         $this->addTaxonomyWheres();
 
         return parent::count();
+    }
+
+    public function with($relations, $callback = null)
+    {
+        return $this;
     }
 }

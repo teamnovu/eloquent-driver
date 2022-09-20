@@ -2,6 +2,7 @@
 
 namespace Statamic\Eloquent\Taxonomies;
 
+use Illuminate\Support\Carbon;
 use Statamic\Contracts\Taxonomies\Term as Contract;
 use Statamic\Eloquent\Taxonomies\TermModel as Model;
 use Statamic\Taxonomies\Term as FileEntry;
@@ -15,7 +16,7 @@ class Term extends FileEntry
         $data = $model->data;
 
         /** @var Term $term */
-        $term = (new static)
+        $term = (new static())
             ->slug($model->slug)
             ->taxonomy($model->taxonomy)
             ->model($model)
@@ -34,7 +35,12 @@ class Term extends FileEntry
             unset($data['collection']);
         }
 
+        $term->syncOriginal();
         $term->data($data);
+
+        if (config('statamic.system.track_last_update')) {
+            $term->set('updated_at', $model->updated_at ?? $model->created_at);
+        }
 
         return $term;
     }
@@ -58,10 +64,10 @@ class Term extends FileEntry
             $data['blueprint'] = $source->blueprint;
         }
 
-        $data['localizations'] = $source->localizations()->keys()->reduce(function ($localizations, $locale) use ($source) {
-            $localizations[$locale] = $source->dataForLocale($locale)->toArray();
+        $source->localizations()->keys()->reduce(function ($data, $locale) use ($source) {
+            $data[$locale] = $source->dataForLocale($locale)->toArray();
 
-            return $localizations;
+            return $data;
         }, []);
 
         if ($collection = $source->collection()) {
@@ -69,12 +75,13 @@ class Term extends FileEntry
         }
 
         return $class::firstOrNew([
-            'slug' => $source->slug(),
+            'slug'     => $source->slug(),
             'taxonomy' => $source->taxonomy(),
-            'site' => $source->locale(),
+            'site'     => $source->locale(),
         ])->fill([
-            'uri' => $source->uri(),
-            'data' => $data,
+            'uri'        => $source->uri(),
+            'data'       => $data,
+            'updated_at' => $source->lastModified(),
         ]);
     }
 
@@ -86,13 +93,15 @@ class Term extends FileEntry
 
         $this->model = $model;
 
-        $this->id($model->id);
+        if (! is_null($model)) {
+            $this->id($model->id);
+        }
 
         return $this;
     }
 
-    public function lastModified()
+    public function fileLastModified()
     {
-        return $this->model?->updated_at;
+        return $this->model?->updated_at ?? Carbon::now();
     }
 }

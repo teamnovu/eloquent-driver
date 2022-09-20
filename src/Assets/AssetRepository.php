@@ -23,7 +23,7 @@ namespace Statamic\Eloquent\Assets;
      public static function bindings(): array
      {
          return [
-             AssetContract::class => Asset::class,
+             AssetContract::class        => Asset::class,
              QueryBuilderContract::class => QueryBuilder::class,
          ];
      }
